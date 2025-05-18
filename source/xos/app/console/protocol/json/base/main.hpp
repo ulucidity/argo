@@ -165,25 +165,36 @@ protected:
 
     //////////////////////////////////////////////////////////////////////////
     /// ...prepare_to_process_unknown_response_run
-    virtual int prepare_to_process_unknown_response_run(string_t& response, int argc, char_t** argv, char_t** env) {
+    virtual int default_prepare_to_process_unknown_response_run(string_t& response, int argc, char_t** argv, char_t** env) {
         int err = 0;
-        LOGGER_IS_LOGGED_INFO("(!(err = this->default_prepare_to_process_unknown_response_run(response, argc, argv, env)))...");
-        if (!(err = this->default_prepare_to_process_unknown_response_run(response, argc, argv, env))) {
-            LOGGER_IS_LOGGED_INFO("...(!(" << err << " = this->default_prepare_to_process_unknown_response_run(response, argc, argv, env)))");
+        string_t& json_response = this->json_response();
+        LOGGER_IS_LOGGED_INFO("json_response.assign(\"" << response << "\")...");
+        json_response.assign(response);
+        LOGGER_IS_LOGGED_INFO("(!(err = extends::default_prepare_to_process_unknown_response_run(response, argc, argv, env)))...");
+        if (!(err = extends::default_prepare_to_process_unknown_response_run(response, argc, argv, env))) {
+            LOGGER_IS_LOGGED_INFO("...(!(" << err << " = extends::default_prepare_to_process_unknown_response_run(response, argc, argv, env)))");
             to_json_node_t to_json_node;
             json_node_t json_node;
             
-            LOGGER_IS_LOGGED_INFO("to_json_node.to(json_node, \"" << response << "\")...");
-            to_json_node.to(json_node, response);
-            LOGGER_IS_LOGGED_INFO("...to_json_node.to(json_node, \"" << response << "\")");
-            LOGGER_IS_LOGGED_INFO("!(err = all_process_json_node_response_run(\"" << response << "\", json_node, argc, argv, env))...");
-            if (!(err = all_process_json_node_response_run(response, json_node, argc, argv, env))) {
-                LOGGER_IS_LOGGED_INFO("...!(" << err << " = all_process_json_node_response_run(\"" << response << "\", json_node, argc, argv, env))");
+            LOGGER_IS_LOGGED_INFO("to_json_node.to(json_node, \"" << json_response << "\")...");
+            to_json_node.to(json_node, json_response);
+            LOGGER_IS_LOGGED_INFO("...to_json_node.to(json_node, \"" << json_response << "\")");
+            LOGGER_IS_LOGGED_INFO("!(err = all_process_json_node_response_run(\"" << json_response << "\", json_node, argc, argv, env))...");
+            if (!(err = all_process_json_node_response_run(json_response, json_node, argc, argv, env))) {
+                LOGGER_IS_LOGGED_INFO("...!(" << err << " = all_process_json_node_response_run(\"" << json_response << "\", json_node, argc, argv, env))");
+                LOGGER_IS_LOGGED_INFO("(0 < (json_response.length()))...");
+                if (0 < (json_response.length())) {
+                    LOGGER_IS_LOGGED_INFO("...(0 < (json_response.length()))");
+                    LOGGER_IS_LOGGED_INFO("response.assign(\"" << json_response << "\")...");
+                    response.assign(json_response);
+                } else {
+                    LOGGER_IS_LOGGED_INFO("...failed on (0 < (json_response.length()))");
+                }
             } else {
-                LOGGER_IS_LOGGED_INFO("...failed on !(" << err << " = all_process_json_node_response_run(\"" << response << "\", json_node, argc, argv, env))");
+                LOGGER_IS_LOGGED_INFO("...failed on !(" << err << " = all_process_json_node_response_run(\"" << json_response << "\", json_node, argc, argv, env))");
             }
         } else {
-            LOGGER_IS_LOGGED_INFO("...failed on(!(" << err << " = this->default_prepare_to_process_unknown_response_run(response, argc, argv, env)))");
+            LOGGER_IS_LOGGED_INFO("...failed on(!(" << err << " = extends::default_prepare_to_process_unknown_response_run(response, argc, argv, env)))");
         }
         return err;
     }
@@ -222,11 +233,11 @@ protected:
 
     //////////////////////////////////////////////////////////////////////////
     /// ...prepare_response_to_unknown_request_run
-    virtual int prepare_response_to_unknown_request_run(string_t& response, const string_t& request, int argc, char_t** argv, char_t** env) {
+    virtual int default_prepare_response_to_unknown_request_run(string_t& response, const string_t& request, int argc, char_t** argv, char_t** env) {
         int err = 0;
-        LOGGER_IS_LOGGED_INFO("(!(err = this->default_prepare_response_to_unknown_request_run(response, request, argc, argv, env)))...");
-        if (!(err = this->default_prepare_response_to_unknown_request_run(response, request, argc, argv, env))) {
-            LOGGER_IS_LOGGED_INFO("...(!(" << err << " = this->default_prepare_response_to_unknown_request_run(response, request, argc, argv, env)))");
+        LOGGER_IS_LOGGED_INFO("(!(err = extends::default_prepare_response_to_unknown_request_run(response, request, argc, argv, env)))...");
+        if (!(err = extends::default_prepare_response_to_unknown_request_run(response, request, argc, argv, env))) {
+            LOGGER_IS_LOGGED_INFO("...(!(" << err << " = extends::default_prepare_response_to_unknown_request_run(response, request, argc, argv, env)))");
             to_json_node_t to_json_node;
             json_node_t json_node;
             
@@ -240,7 +251,7 @@ protected:
                 LOGGER_IS_LOGGED_INFO("...failed on !(" << err << " = all_prepare_response_to_json_node_request_run(response, \"" << request << "\", json_node, argc, argv, env))");
             }
         } else {
-            LOGGER_IS_LOGGED_INFO("...failed on(!(" << err << " = this->default_prepare_response_to_unknown_request_run(response, request, argc, argv, env)))");
+            LOGGER_IS_LOGGED_INFO("...failed on(!(" << err << " = extends::default_prepare_response_to_unknown_request_run(response, request, argc, argv, env)))");
         }
         return err;
     }
@@ -370,6 +381,9 @@ protected:
     virtual string_t& response() const {
         return (string_t&)response_;
     }
+    virtual string_t& json_response() const {
+        return (string_t&)json_response_;
+    }
     //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
@@ -378,7 +392,7 @@ protected:
              restart_request_, restart_response_, 
              stop_request_, stop_response_, 
              unknown_request_, unknown_response_, 
-             request_, response_;
+             request_, response_, json_response_;
 }; /// class maint 
 typedef maint<> main;
 
